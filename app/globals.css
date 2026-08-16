@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: #07101f;
+    --foreground: #ece7dc;
+  }
+  html { scroll-behavior: smooth; }
+  body { background: var(--background); color: var(--foreground); }
+  ::selection { background: rgba(212, 168, 67, 0.35); color: #07101f; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #0c182f; }
+  ::-webkit-scrollbar-thumb { background: #243456; border-radius: 3px; }
+  input, textarea, select { color-scheme: dark; }
+}
+
+@layer components {
+  /* Dark card, hairline gold border, no glass. */
+  .sv-card {
+    @apply rounded-lg bg-navy-900 border border-gold-500/15 p-6;
+  }
+  .sv-input {
+    @apply w-full px-4 py-3 rounded-md bg-navy-950 border border-navy-700 text-ink placeholder:text-navy-500 focus:outline-none focus:ring-2 focus:ring-gold-500/40 focus:border-gold-500/60 transition-all;
+  }
+  .sv-chip {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm text-[11px] font-medium tracking-wide uppercase border border-gold-500/25 bg-gold-500/10 text-gold-300;
+  }
+  .sv-btn {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+  .sv-btn-gold {
+    @apply sv-btn bg-gold-500 text-navy-950 hover:bg-gold-400;
+  }
+  .sv-btn-ghost {
+    @apply sv-btn bg-navy-800 border border-navy-700 text-ink hover:border-gold-500/40;
+  }
+  .sv-btn-quiet {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium bg-navy-800 text-navy-300 hover:text-ink transition-all disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+  .sv-eyebrow {
+    @apply text-[10px] font-semibold uppercase tracking-[0.18em] text-navy-500;
+  }
+}
