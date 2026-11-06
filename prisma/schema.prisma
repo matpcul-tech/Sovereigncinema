@@ -1,0 +1,75 @@
+// Sovereign Cinema, single-user Postgres schema.
+// A Film is a trailer or a short built shot by shot with LTX-2.5.
+// Each Shot carries its prompts plus the fal job ids for its still and clip.
+// endImageUrl and cast are here for continuity mode (a chain of keyframes
+// where each clip ends on the next clip's first frame) so it lands as a
+// targeted addition, not a migration.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Film {
+  id                Int      @id @default(autoincrement())
+  title             String
+  bookTitle         String   @default("")
+  mode              String   @default("trailer") // trailer | film
+  format            String   @default("9:16")    // 9:16 | 16:9
+  resolution        String   @default("1080p")   // 720p | 1080p
+  tier              String   @default("fast")    // fast | pro (LTX-2.5 endpoint)
+  sourceText        String   @default("")        // blurb / synopsis / excerpt / script the plan came from
+  notes             String   @default("")        // creator direction for the planner
+  logline           String   @default("")
+  storyBible        String   @default("{}")      // JSON: styleAnchor, protagonistAnchor, worldAnchor, tone
+  cast              String   @default("[]")      // JSON: [{ name, anchor, referenceUrl }] (continuity mode)
+  music             String   @default("{}")      // JSON: mood, tempo, cueNotes
+  cta               String   @default("")
+  seed              Int      @default(0)         // keyframe seed shared across stills (0 = random)
+  finalRequestId    String   @default("")        // ffmpeg stitch job
+  finalStatusUrl    String   @default("")
+  finalResponseUrl  String   @default("")
+  finalStatus       String   @default("")        // "" | queued | generating | completed | failed
+  finalUrl          String   @default("")        // stitched MP4 once complete
+  finalError        String   @default("")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  shots             Shot[]
+}
+
+model Shot {
+  id                Int      @id @default(autoincrement())
+  filmId            Int
+  film              Film     @relation(fields: [filmId], references: [id], onDelete: Cascade)
+  order             Int      @default(0)
+  sceneLabel        String   @default("")        // continuity mode: which scene this shot belongs to
+  beat              String   @default("")        // hook | world | protagonist | threat | turn | stakes | title | cta
+  label             String   @default("")
+  onScreenText      String   @default("")        // composited later in the editor, never rendered by the model
+  imagePrompt       String   @default("")
+  motionPrompt      String   @default("")
+  soundNote         String   @default("")
+  duration          Int      @default(6)         // 6 | 8 | 10 seconds
+  cameraMotion      String   @default("")        // "" | static | dolly_in | dolly_out | dolly_left | dolly_right | jib_up | jib_down | focus_shift
+  imageUrl          String   @default("")        // start frame (generated, or a URL the creator pasted)
+  imageStatus       String   @default("")        // "" | queued | generating | completed | failed
+  imageRequestId    String   @default("")
+  imageStatusUrl    String   @default("")
+  imageResponseUrl  String   @default("")
+  endImageUrl       String   @default("")        // continuity mode: the frame this clip must land on
+  clipUrl           String   @default("")        // rendered MP4 with native audio
+  clipStatus        String   @default("")        // "" | queued | generating | completed | failed
+  clipRequestId     String   @default("")
+  clipStatusUrl     String   @default("")
+  clipResponseUrl   String   @default("")
+  error             String   @default("")
+  approved          Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([filmId])
+}
